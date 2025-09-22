@@ -10,6 +10,7 @@ import org.alter.game.model.attr.APPEARANCE_SET_ATTR
 import org.alter.game.model.attr.NEW_ACCOUNT_ATTR
 import org.alter.game.model.entity.Client
 import org.alter.game.saving.impl.*
+import org.alter.game.saving.impl.MusicSerialisation
 import org.alter.game.saving.formats.FormatHandler
 import org.bson.Document
 import org.mindrot.jbcrypt.BCrypt
@@ -20,6 +21,8 @@ object PlayerSaving {
 
     lateinit var serialization : FormatHandler
 
+    private val musicSerialisation = MusicSerialisation()
+
     private val documents = linkedSetOf(
         DetailSerialisation(),
         AppearanceSerialisation(),
@@ -28,6 +31,7 @@ object PlayerSaving {
         TimerSerialisation(),
         ContainersSerialisation(),
         VarpSerialisation(),
+        musicSerialisation,
     )
 
     fun init(gameContext: GameContext) {
@@ -117,9 +121,14 @@ object PlayerSaving {
         return try {
             attributes?.let {
                 documents.forEach { decoder ->
-                    attributes.get(decoder.name, Document::class.java)?.let { attrDoc ->
+                    val attrDoc = attributes.get(decoder.name, Document::class.java)
+                    if (attrDoc != null) {
                         decoder.fromDocument(client, attrDoc)
-                    } ?: return false
+                    } else if (decoder == musicSerialisation) {
+                        musicSerialisation.applyDefaults(client)
+                    } else {
+                        return false
+                    }
                 }
             } ?: return false
             true

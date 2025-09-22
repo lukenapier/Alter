@@ -41,6 +41,8 @@ import org.alter.game.model.timer.FORCE_DISCONNECTION_TIMER
 import org.alter.game.model.varp.VarpSet
 import org.alter.game.rsprot.RsModObjectProvider
 import org.alter.game.service.log.LoggerService
+import org.alter.game.service.music.MusicService
+import org.alter.game.service.music.PlayerMusicState
 import java.util.*
 
 /**
@@ -98,6 +100,13 @@ open class Player(world: World) : Pawn(world) {
 
     fun getPendingLogout() = pendingLogout
 
+    private fun musicService(): MusicService? {
+        if (cachedMusicService == null) {
+            cachedMusicService = world.getService(MusicService::class.java, searchSubclasses = true)
+        }
+        return cachedMusicService
+    }
+
     /**
      * A flag which indicates that our [FORCE_DISCONNECTION_TIMER] must be set
      * when [pendingLogout] logic is handled.
@@ -127,6 +136,8 @@ open class Player(world: World) : Pawn(world) {
 
     val varps = VarpSet(maxVarps = varpSize())
 
+    val music = PlayerMusicState()
+
     private val skillSet = SkillSet(maxSkills = world.gameContext.skillCount)
 
     /**
@@ -145,6 +156,8 @@ open class Player(world: World) : Pawn(world) {
      * able to render more entities in a larger radius than normal.
      */
     private var largeViewport = false
+
+    private var cachedMusicService: MusicService? = null
 
     var appearance = Appearance.DEFAULT_MALE
 
@@ -242,6 +255,8 @@ open class Player(world: World) : Pawn(world) {
         var calculateWeight = false
         var calculateBonuses = false
 
+        musicService()?.cyclePlayer(this)
+
         if (pendingLogout) {
             /*
              * If a channel is suddenly inactive (disconnected), we don't to
@@ -282,6 +297,7 @@ open class Player(world: World) : Pawn(world) {
                 world.plugins.executeRegionExit(this, oldRegion)
             }
             world.plugins.executeRegionEnter(this, tile.regionId)
+            musicService()?.onRegionChange(this, oldRegion, tile.regionId)
         }
         if (inventory.dirty) {
             val items = inventory.rawItems
@@ -449,6 +465,7 @@ open class Player(world: World) : Pawn(world) {
         org.alter.game.info.PlayerInfo(this).syncAppearance()
         initiated = true
         world.plugins.executeLogin(this)
+        musicService()?.onLogin(this)
         social.updateStatus(this)
     }
 
@@ -505,7 +522,9 @@ open class Player(world: World) : Pawn(world) {
         /*
          * Amount of levels that have increased with the addition of [xp].
          */
-        val increment = SkillSet.getLevelForXp(newXp) - SkillSet.getLevelForXp(oldXp)
+        val oldLevel = SkillSet.getLevelForXp(oldXp)
+        val newLevel = SkillSet.getLevelForXp(newXp)
+        val increment = newLevel - oldLevel
 
         /*
          * Only increment the 'current' level if it's set at its capped level.
@@ -521,6 +540,7 @@ open class Player(world: World) : Pawn(world) {
             attr[LEVEL_UP_INCREMENT] = increment
             attr[LEVEL_UP_OLD_XP] = oldXp
             world.plugins.executeSkillLevelUp(this)
+            musicService()?.onLevelUp(this, skill, newLevel)
         }
     }
 

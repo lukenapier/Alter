@@ -1,0 +1,15 @@
+[
+  {"id": 0, "name": "Scape Main", "isJingle": false},
+  {"id": 2, "name": "Autumn Voyage", "isJingle": false},
+  {"id": 6, "name": "Jolly R", "isJingle": false},
+  {"id": 35, "name": "Sea Shanty 2", "isJingle": false},
+  {"id": 62, "name": "Newbie Melody", "isJingle": false},
+  {"id": 90, "name": "Trawler Minor", "isJingle": false},
+  {"id": 104, "name": "Camelot", "isJingle": false},
+  {"id": 163, "name": "Flute Salad", "isJingle": false},
+  {"id": 321, "name": "Scape Scared", "isJingle": false},
+  {"id": 400, "name": "Scape Original", "isJingle": false},
+  {"id": 2396, "name": "Level-Up Fanfare", "isJingle": true},
+  {"id": 2384, "name": "Level-Up Chime", "isJingle": true},
+  {"id": 2379, "name": "Max Cape Celebration", "isJingle": true}
+]

@@ -1,0 +1,13 @@
+[
+  {"regionId": 12850, "trackId": 62, "priority": 100},
+  {"regionId": 12851, "trackId": 62, "priority": 90},
+  {"regionId": 12852, "trackId": 35, "priority": 80},
+  {
+    "regionId": 12590,
+    "trackId": 2,
+    "priority": 70,
+    "bounds": {"x": 16, "z": 16, "width": 32, "height": 32}
+  },
+  {"regionId": 12342, "trackId": 6, "priority": 60},
+  {"regionId": 12083, "trackId": 104, "priority": 50}
+]
