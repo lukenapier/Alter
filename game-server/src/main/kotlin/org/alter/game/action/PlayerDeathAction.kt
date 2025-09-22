@@ -1,7 +1,6 @@
 package org.alter.game.action
 
 import dev.openrune.cache.CacheManager.getAnim
-import net.rsprot.protocol.game.outgoing.sound.MidiJingle
 import org.alter.game.model.attr.KILLER_ATTR
 import org.alter.game.model.entity.Player
 import org.alter.game.model.move.moveTo
@@ -10,6 +9,7 @@ import org.alter.game.model.queue.QueueTask
 import org.alter.game.model.queue.TaskPriority
 import org.alter.game.plugin.Plugin
 import org.alter.game.service.log.LoggerService
+import org.alter.game.service.music.MusicService
 import java.lang.ref.WeakReference
 
 /**
@@ -34,7 +34,7 @@ object PlayerDeathAction {
         val world = player.world
         val deathAnim = getAnim(DEATH_ANIMATION)
         val instancedMap = world.instanceAllocator.getMap(player.tile)
-        player.write(MidiJingle(90))
+        player.world.getService(MusicService::class.java, searchSubclasses = true)?.playJingle(player, 90)
         player.damageMap.getMostDamage()?.let { killer ->
             if (killer is Player) {
                 world.getService(LoggerService::class.java, searchSubclasses = true)?.logPlayerKill(killer, player)

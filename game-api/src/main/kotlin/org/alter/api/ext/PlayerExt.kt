@@ -34,6 +34,7 @@ import org.alter.game.model.timer.SKULL_ICON_DURATION_TIMER
 import org.alter.game.rsprot.RsModIndexedObjectProvider
 import org.alter.game.rsprot.RsModObjectProvider
 import org.alter.rscm.RSCM
+import org.alter.game.service.music.PacketSender
 import kotlin.math.floor
 
 /**
@@ -584,14 +585,24 @@ fun Player.playSound(
     write(SynthSound(id = id, loops = volume, delay = delay))
 }
 
-fun Player.playSong(id: Int) {
-    write(MidiSongV2(id = 0,
-            fadeOutDelay = 0,
-            fadeOutSpeed = 0,
-            fadeInDelay = 0,
-            fadeInSpeed = 0
-    ))
-    setComponentText(interfaceId = 239, component = 6, text = Song.getTitle(id))
+fun Player.playSong(
+    id: Int,
+    fadeOutDelay: Int = PacketSender.DEFAULT_SONG_FADE_DELAY,
+    fadeOutSpeed: Int = PacketSender.DEFAULT_SONG_FADE_SPEED,
+    fadeInDelay: Int = PacketSender.DEFAULT_SONG_FADE_DELAY,
+    fadeInSpeed: Int = PacketSender.DEFAULT_SONG_FADE_SPEED,
+) {
+    write(
+        MidiSongV2(
+            id = id,
+            fadeOutDelay = fadeOutDelay,
+            fadeOutSpeed = fadeOutSpeed,
+            fadeInDelay = fadeInDelay,
+            fadeInSpeed = fadeInSpeed,
+        ),
+    )
+    val title = Song.getTitle(id).ifBlank { "Track $id" }
+    setComponentText(interfaceId = 239, component = 6, text = title)
 }
 
 fun Player.playJingle(id: Int) {
@@ -650,6 +661,12 @@ fun Player.setVarbit(
     }
     val def = CacheManager.getVarbit(id)
     varps.setBit(def.varp, def.startBit, def.endBit, value)
+}
+
+fun Player.syncMusicSettings() {
+    val musicState = music
+    setVarbit(Varbit.AUDIO_MUSIC_AREA_MODE, if (musicState.autoPlayEnabled) 0 else 1)
+    setVarbit(Varbit.AUDIO_MUSIC_LOOP_ENABLED, if (musicState.loopEnabled) 1 else 0)
 }
 
 /**

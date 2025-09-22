@@ -40,6 +40,10 @@ services:
 
   - class: org.alter.game.service.game.ObjectMetadataService
 
+  - class: org.alter.game.service.music.AudioService
+
+  - class: org.alter.game.service.music.MusicService
+
   - class: org.alter.service.DumpEntityIdService
     cache-path: "../data/cache/"
     output-path: "../game-api/src/main/kotlin/org/alter/api/cfg/"
